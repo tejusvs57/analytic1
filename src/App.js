@@ -9,10 +9,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./Time.css"; // Import the CSS for neon styles
 import TimeSeriesChart from './trial';
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { format } from 'date-fns';
 
 import ScatterGraphBuilder from "./ScatterGraphBuilder";
+import AuthForm from './login';
 
 
 //export default MyChart;
@@ -124,6 +126,17 @@ function App() {
 
   return (
     <div className="App" >
+    <Router>
+      <Routes>
+        {/* Public Login/Register Route */}
+        <Route path="/login" element={<AuthForm />} />
+
+        {/* Protected Route */}
+
+        {/* Add more protected pages similarly */}
+      </Routes>
+    </Router>
+
     <NavbarSidebar />
     <div style={{marginLeft:'50px'}}>
     <TimeRange style={{marginTop:'30px'}} />
