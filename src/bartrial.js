@@ -1,21 +1,44 @@
 import React, { useState, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 
-export default function AnimatedEventCharts() {
+export default function AnimatedEventCharts({from,to}) {
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const generateData = () => {
-      const events = ["Event A", "Event B", "Event C", "Event D", "Event E", "Event F", "Event G", "Event H", "Event I", "Event J"];
-      let tempData = events.map(event => ({
-        name: event,
-        value: Math.floor(Math.random() * 100),
-      }));
-      return tempData;
+   
+    const fetchData = async () => {
+     
+      setIsLoading(true);
+
+      console.log('bar graph');
+      console.log(from);
+      console.log(to);
+
+      setIsLoading(true); // Start loading
+
+      // Fetch data from your API based on the time range
+      try {
+        const response = await fetch(`https://59.145.153.101:5010/general/stats1?from=${from}&to=${to}`);
+       const gdata = await response.json();
+
+
+       console.log(gdata);
+       console.log(gdata.graph1);
+
+       const data = gdata.graph1;
+       
+        setData(data); // Update the chart data
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false); // Stop loading
+      }
     };
 
-    setData(generateData());
-  }, []);
+    fetchData();
+
+  }, [from,to]);
 
   // Bar Chart options with cool gradient colors for bars
   const barChartOption = {
@@ -31,9 +54,30 @@ export default function AnimatedEventCharts() {
       borderColor: "#4db8ff",
       textStyle: { color: "#ffffff" },
     },
+    dataZoom: [
+      {
+        type: "slider",
+        show: true,
+        start: 0,
+        end: 100,
+        height: 20,
+        bottom: 0,
+        handleStyle: {
+          color: "#4db8ff",
+        },
+        textStyle: {
+          color: "#fff",
+        },
+        backgroundColor: "#1e1e30",
+        borderColor: "#4db8ff",
+      },
+      {
+        type: "inside", // Zoom via scroll
+      },
+    ],
     xAxis: {
       type: "category",
-      data: data.map((item) => item.name),
+      data: data.map(item => `Event ${item.event}`),
       axisLabel: { color: "#4db8ff" ,rotate: 30,interval: 0},
       axisLine: { lineStyle: { color: "#4db8ff" } },
       splitLine: { show: false },
@@ -50,7 +94,7 @@ export default function AnimatedEventCharts() {
       {
         name: "Event Frequency",
         type: "bar",
-        data: data.map((item) => item.value),
+        data:  data.map(item => Number(item.frequency)),
         itemStyle: {
           // Creating a cool gradient color effect for each bar
           color: (params) => {
@@ -71,6 +115,10 @@ export default function AnimatedEventCharts() {
           shadowBlur: 10,
           shadowColor: "rgba(0, 204, 255, 0.8)",
         },
+        emphasis: {
+        itemStyle: {
+          color: "#4db8ff",
+        } , },
         animationDuration: 1500,
         animationEasing: "elasticOut",
       },
@@ -97,8 +145,8 @@ export default function AnimatedEventCharts() {
         type: "pie",
         radius: "55%",
         data: data.map((item) => ({
-          name: item.name,
-          value: item.value,
+          name: item.event,
+          value: item.frequency,
         })),
         itemStyle: {
           color: (params) => {
@@ -120,6 +168,7 @@ export default function AnimatedEventCharts() {
           shadowColor: "rgba(0, 204, 255, 0.8)",
         },
         label: {
+          formatter: '{b}: {d}%',
           color: "#ffffff",
         },
         animationDuration: 1500,

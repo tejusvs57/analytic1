@@ -1,20 +1,64 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { TextField, Box, Typography, Switch } from "@mui/material";
 
-const eventData = [
-  { id: 1, name: "Event A", frequency: 25, available: true },
-  { id: 2, name: "Event B", frequency: 50, available: false },
-  { id: 3, name: "Event C", frequency: 15, available: true },
-  { id: 4, name: "Event D", frequency: 70, available: false },
-  { id: 5, name: "Event E", frequency: 45, available: true },
-  { id: 6, name: "Event F", frequency: 30, available: true },
-  { id: 7, name: "Event G", frequency: 20, available: false },
-];
+// const eventData = [
+//   { id: 1, name: "Event A", frequency: 25, available: true },
+//   { id: 2, name: "Event B", frequency: 50, available: false },
+//   { id: 3, name: "Event C", frequency: 15, available: true },
+//   { id: 4, name: "Event D", frequency: 70, available: false },
+//   { id: 5, name: "Event E", frequency: 45, available: true },
+//   { id: 6, name: "Event F", frequency: 30, available: true },
+//   { id: 7, name: "Event G", frequency: 20, available: false },
+// ];
 
-const CoolDataGrid = () => {
+const CoolDataGrid = ({from,to}) => {
   const [searchText, setSearchText] = useState("");
-  const [filteredRows, setFilteredRows] = useState(eventData);
+  const [filteredRows, setFilteredRows] = useState();
+
+  const [eventData, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+   
+    const fetchData = async () => {
+     
+      setIsLoading(true);
+
+      console.log('bar graph');
+      console.log(from);
+      console.log(to);
+
+      setIsLoading(true); // Start loading
+
+      // Fetch data from your API based on the time range
+      try {
+        const response = await fetch(`https://59.145.153.101:5010/general/stats1?from=${from}&to=${to}`);
+       const gdata = await response.json();
+
+
+       console.log(gdata);
+       console.log(gdata.graph1);
+
+       const data = gdata.graph1.map((item, index) => ({
+        ...item,
+        id: index, // Add unique ID for DataGrid
+      }));
+
+        setData(data);
+       // setData(data); // Update the chart data
+       
+       setFilteredRows(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false); // Stop loading
+      }
+    };
+
+    fetchData();
+
+  }, [from,to]);
 
   const handleSearch = (event) => {
     const value = event.target.value.toLowerCase();
@@ -22,7 +66,7 @@ const CoolDataGrid = () => {
     setFilteredRows(
       eventData.filter(
         (row) =>
-          row.name.toLowerCase().includes(value) ||
+          row.event.toLowerCase().includes(value) ||
           row.frequency.toString().includes(value)
       )
     );
@@ -30,7 +74,7 @@ const CoolDataGrid = () => {
 
   const columns = [
     { field: "id", headerName: "ID", width: 80 },
-    { field: "name", headerName: "Event Name", width: 150, sortable: true },
+    { field: "event", headerName: "Event Name", width: 150, sortable: true },
     {
       field: "frequency",
       headerName: "Frequency",
@@ -38,15 +82,15 @@ const CoolDataGrid = () => {
       type: "number",
       sortable: true,
     },
-    {
-      field: "available",
-      headerName: "Available",
-      width: 110,
-      sortable: true,
-      renderCell: (params) => (
-        <Switch checked={params.value} color="success" />
-      ),
-    },
+    // {
+    //   field: "available",
+    //   headerName: "Available",
+    //   width: 110,
+    //   sortable: true,
+    //   renderCell: (params) => (
+    //     <Switch checked={params.value} color="success" />
+    //   ),
+    // },
   ];
 
   return (

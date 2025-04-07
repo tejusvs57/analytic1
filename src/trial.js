@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
+import { PuffLoader } from "react-spinners";
 
-export default function AnimatedGamingGraph() {
+export default function AnimatedGamingGraph({from,to}) {
   const [data, setData] = useState([]);
   const updateInterval = 1500000; // Update every 1.5 seconds for sharper animation
+  const [isLoading, setIsLoading] = useState(false);
 
   const onDataZoom = (event) => {
       const newStartTime = event.batch[0].startValue;
@@ -13,34 +15,48 @@ export default function AnimatedGamingGraph() {
        console.log(newEndTime);
     };
 
-  useEffect(() => {
-    const generateData = () => {
-      let tempData = [];
-      let now = new Date();
-      for (let i = 0; i < 200; i++) {
-        let timestamp = new Date(now.getTime() - i * 60000);
-        let value = Math.floor(Math.random() * 100);
-        tempData.push([timestamp, value]);
+ 
+ 
+useEffect(() => {
+
+    const fetchData = async () => {
+      // const startTime = currentTimeRange[0];
+      // const endTime = currentTimeRange[1];
+      setIsLoading(true);
+
+      console.log('timeseries');
+      console.log(from);
+      console.log(to);
+
+      setIsLoading(true); // Start loading
+
+      // Fetch data from your API based on the time range
+      try {
+        const response = await fetch(`https://59.145.153.101:5010/general/stats3?from=${from}&to=${to}`);
+       const gdata = await response.json();
+
+
+       console.log(gdata);
+       console.log(gdata.graph3);
+
+       const data = gdata.graph3.map((point) => [point.time, point.value]);
+       
+        setData(data); // Update the chart data
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false); // Stop loading
       }
-      return tempData.reverse();
     };
 
-    setData(generateData());
+    fetchData();
 
-    const interval = setInterval(() => {
-      setData((prevData) => {
-        let newPoint = [new Date(), Math.floor(Math.random() * 100)];
-        return [...prevData.slice(1), newPoint]; // Slide forward with new point
-      });
-    }, updateInterval);
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [from,to]);
 
   const option = {
     backgroundColor: "#080A1E",
     title: {
-      text: "🔥 Gaming Analytics - Sharp Pulse Effect",
+      text: " Analytics - Sharp Pulse Effect",
       left: "center",
       textStyle: { color: "#4db8ff", fontSize: 22, fontWeight: "bold" },
     },
@@ -52,7 +68,7 @@ export default function AnimatedGamingGraph() {
     },
     xAxis: {
       type: "time",
-      axisLabel: { formatter: "{HH}:{mm}", color: "#4db8ff" },
+      axisLabel: { formatter: "{yyyy}-{MM}-{dd} {hh}:{mm}", color: "#4db8ff" },
       axisLine: { lineStyle: { color: "#4db8ff" } },
       splitLine: { show: false },
     },
@@ -123,5 +139,26 @@ export default function AnimatedGamingGraph() {
     ],
   };
 
-  return <ReactECharts option={option} style={{ height: "450px" }} />;
+  // return <ReactECharts option={option} style={{ height: "450px" }} />;
+  return (
+    <div style={{ position: "relative", height: "450px" }}>
+      {isLoading && (
+        <div style={{
+          position: "absolute",
+          zIndex: 10,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+        }}>
+          <PuffLoader color="#4db8ff" size={80} />
+        </div>
+      )}
+      <ReactECharts option={option} style={{ height: "100%" }} />
+    </div>
+  );
 }
