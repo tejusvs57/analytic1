@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import ScatterGraphBuilder from "./ScatterGraphBuilder";
 import AuthForm from './login';
 import WebSocketNotification from './notification';
+import DeviceDashboard from './DeviceDashboard';
 
 
 //export default MyChart;
@@ -130,6 +131,7 @@ function App() {
     <Router>
       <Routes>
         {/* Public Login/Register Route */}
+        <Route path="/home" element={<DeviceDashboard />} />
         <Route path="/login" element={<AuthForm />} />
 
         {/* Protected Route */}
@@ -138,15 +140,15 @@ function App() {
       </Routes>
     </Router>
 
-    <NavbarSidebar />
+    {/* <NavbarSidebar />
     <div style={{marginLeft:'50px'}}>
     <WebSocketNotification/>
-    <TimeRange style={{marginTop:'30px'}} />
+    <TimeRange style={{marginTop:'30px'}} /> */}
    
    
     {/* <MyChart />
     <Line data={data} options={options} />; */}
-    <TimeSeriesChart from={formattedStart} to={formattedEnd}/>
+    {/* <TimeSeriesChart from={formattedStart} to={formattedEnd}/>
     <AnimatedEventCharts from={formattedStart} to={formattedEnd} />
     <StackedChart />
 
@@ -158,7 +160,7 @@ function App() {
     </div>
 
    
-    </div>
+    </div> */}
 
    
     

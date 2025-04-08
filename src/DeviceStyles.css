@@ -1,0 +1,45 @@
+.dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    
+    .device-card {
+      background: #0e1a2a;
+      border-radius: 16px;
+      color: white;
+      padding: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+      transition: transform 0.2s ease;
+    }
+    
+    .device-card:hover {
+      transform: translateY(-4px);
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .status {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    
+    .status.active {
+      background: #00e676;
+    }
+    
+    .status.inactive {
+      background: #ff1744;
+    }
+    
+    .info label {
+      display: block;
+      margin: 8px 0;
+    }
+    
