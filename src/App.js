@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 
 import ScatterGraphBuilder from "./ScatterGraphBuilder";
 import AuthForm from './login';
+import WebSocketNotification from './notification';
 
 
 //export default MyChart;
@@ -139,6 +140,7 @@ function App() {
 
     <NavbarSidebar />
     <div style={{marginLeft:'50px'}}>
+    <WebSocketNotification/>
     <TimeRange style={{marginTop:'30px'}} />
    
    

@@ -1,0 +1,47 @@
+.notification-icon {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    
+    .badge {
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 50%;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+    }
+    
+    .dropdown {
+      position: fixed;
+      top: 60px;
+      right: 30px;
+      width: 300px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+      padding: 10px;
+    }
+    
+    .dropdown ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .dropdown li {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .type-success { color: green; }
+    .type-error { color: red; }
+    .type-info { color: #333; }
+    
