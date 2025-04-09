@@ -10,6 +10,8 @@ import {
   Typography,
   Pagination,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import DeviceCard from './DeviceCard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,6 +23,7 @@ const DeviceDashboard = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [loggingFilter, setLoggingFilter] = useState('all');
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState('grid');
   const devicesPerPage = 6;
 
   const [devices, setDevices] = useState([
@@ -144,82 +147,168 @@ const DeviceDashboard = () => {
         Device Monitor Dashboard
       </Typography>
 
+      <Box display="flex" justifyContent="flex-end" mb={2} pr={2}>
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={(e, newMode) => newMode && setViewMode(newMode)}
+          size="small"
+          color="primary"
+        >
+          <ToggleButton value="grid">Grid</ToggleButton>
+          <ToggleButton value="list">List</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
       {/* Filters */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={4}>
-          <TextField
-            label="Search Devices"
-            variant="outlined"
-            fullWidth
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </Grid>
+  <Grid item xs={12} sm={6} md={4}>
+    <TextField
+      label="Search Devices"
+      variant="outlined"
+      fullWidth
+      onChange={(e) => setSearchTerm(e.target.value)}
+      InputLabelProps={{ style: { color: '#80deea' } }}
+      InputProps={{
+        style: {
+          color: '#e0f7fa',
+          borderColor: '#00e5ff',
+        },
+      }}
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          '& fieldset': {
+            borderColor: '#00e5ff',
+          },
+          '&:hover fieldset': {
+            borderColor: '#1de9b6',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: '#00e676',
+          },
+        },
+      }}
+    />
+  </Grid>
 
-        <Grid item xs={6} sm={3} md={2}>
-          <FormControl fullWidth>
-            <InputLabel>Sort By</InputLabel>
-            <Select
-              value={sortField}
-              onChange={(e) => setSortField(e.target.value)}
-              label="Sort By"
-            >
-              <MenuItem value="">None</MenuItem>
-              <MenuItem value="lastAvailable">Last Available</MenuItem>
-              <MenuItem value="lastUploaded">Last Uploaded</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
+  {/* Sort By */}
+  <Grid item xs={6} sm={3} md={2}>
+    <FormControl fullWidth sx={{ color: '#e0f7fa' }}>
+      <InputLabel sx={{ color: '#80deea' }}>Sort By</InputLabel>
+      <Select
+        value={sortField}
+        onChange={(e) => setSortField(e.target.value)}
+        label="Sort By"
+        sx={{
+          color: '#e0f7fa',
+          '.MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e5ff',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#1de9b6',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e676',
+          },
+        }}
+      >
+        <MenuItem value="">None</MenuItem>
+        <MenuItem value="lastAvailable">Last Available</MenuItem>
+        <MenuItem value="lastUploaded">Last Uploaded</MenuItem>
+      </Select>
+    </FormControl>
+  </Grid>
 
-        <Grid item xs={6} sm={3} md={2}>
-          <FormControl fullWidth>
-            <InputLabel>Order</InputLabel>
-            <Select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              label="Order"
-            >
-              <MenuItem value="desc">Newest</MenuItem>
-              <MenuItem value="asc">Oldest</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
+  {/* Order */}
+  <Grid item xs={6} sm={3} md={2}>
+    <FormControl fullWidth sx={{ color: '#e0f7fa' }}>
+      <InputLabel sx={{ color: '#80deea' }}>Order</InputLabel>
+      <Select
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value)}
+        label="Order"
+        sx={{
+          color: '#e0f7fa',
+          '.MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e5ff',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#1de9b6',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e676',
+          },
+        }}
+      >
+        <MenuItem value="desc">Newest</MenuItem>
+        <MenuItem value="asc">Oldest</MenuItem>
+      </Select>
+    </FormControl>
+  </Grid>
 
-        <Grid item xs={6} sm={3} md={2}>
-          <FormControl fullWidth>
-            <InputLabel>Active</InputLabel>
-            <Select
-              value={activeFilter}
-              onChange={(e) => setActiveFilter(e.target.value)}
-              label="Active"
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="inactive">Inactive</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
+  {/* Active Filter */}
+  <Grid item xs={6} sm={3} md={2}>
+    <FormControl fullWidth sx={{ color: '#e0f7fa' }}>
+      <InputLabel sx={{ color: '#80deea' }}>Active</InputLabel>
+      <Select
+        value={activeFilter}
+        onChange={(e) => setActiveFilter(e.target.value)}
+        label="Active"
+        sx={{
+          color: '#e0f7fa',
+          '.MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e5ff',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#1de9b6',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e676',
+          },
+        }}
+      >
+        <MenuItem value="all">All</MenuItem>
+        <MenuItem value="active">Active</MenuItem>
+        <MenuItem value="inactive">Inactive</MenuItem>
+      </Select>
+    </FormControl>
+  </Grid>
 
-        <Grid item xs={6} sm={3} md={2}>
-          <FormControl fullWidth>
-            <InputLabel>Logging</InputLabel>
-            <Select
-              value={loggingFilter}
-              onChange={(e) => setLoggingFilter(e.target.value)}
-              label="Logging"
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="on">On</MenuItem>
-              <MenuItem value="off">Off</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
+  {/* Logging Filter */}
+  <Grid item xs={6} sm={3} md={2}>
+    <FormControl fullWidth sx={{ color: '#e0f7fa' }}>
+      <InputLabel sx={{ color: '#80deea' }}>Logging</InputLabel>
+      <Select
+        value={loggingFilter}
+        onChange={(e) => setLoggingFilter(e.target.value)}
+        label="Logging"
+        sx={{
+          color: '#e0f7fa',
+          '.MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e5ff',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#1de9b6',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00e676',
+          },
+        }}
+      >
+        <MenuItem value="all">All</MenuItem>
+        <MenuItem value="on">On</MenuItem>
+        <MenuItem value="off">Off</MenuItem>
+      </Select>
+    </FormControl>
+  </Grid>
+</Grid>
+
 
       {/* Cards */}
       <Grid container spacing={3}>
         <AnimatePresence>
           {paginatedDevices.map((device) => (
-            <Grid item key={device.id} xs={12} sm={6} md={4}>
+            <Grid item key={device.id} xs={12}  sm={viewMode === 'grid' ? 6 : 12} md={viewMode === 'grid' ? 4 : 12}>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
