@@ -1,148 +1,175 @@
-// Working example with MUI v5+, dark mode, smaller dropdowns, and proper imports
-
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Grid,
-  Typography,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Button,
-  TextField
+  Box, Button, MenuItem, Select, InputLabel, FormControl,
+  Typography, CircularProgress, TextField
 } from '@mui/material';
-import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import dayjs from 'dayjs';
+import Papa from 'papaparse';
+import DownloadIcon from '@mui/icons-material/Download';
+import { default as ReactSelect } from 'react-select';
 
-// Sample options
-const sampleEvents = ['All Events', 'Login', 'Logout', 'Error'];
-const sampleDevices = ['All Devices', 'Device A', 'Device B'];
-const sampleParameters = ['Temperature', 'Voltage', 'Current', 'Humidity'];
+const EventDeviceParameterSelector = () => {
+  const [events, setEvents] = useState([]);
+  const [devices, setDevices] = useState([]);
+  const [parameters, setParameters] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [selectedDevice, setSelectedDevice] = useState('');
+  const [selectedParams, setSelectedParams] = useState([]);
+  const [fromTime, setFromTime] = useState('');
+  const [toTime, setToTime] = useState('');
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
+  useEffect(() => {
+    setEvents(['Flight Start', 'Engine Check', 'Battery Drain']);
+    setDevices(['Device A', 'Device B', 'Device C']);
+    setParameters(Array.from({ length: 500 }, (_, i) => ({
+      label: `Param ${i + 1}`,
+      value: `param_${i + 1}`
+    })));
+  }, []);
 
-const SmallSelect = styled(Select)(({ theme }) => ({
-  minWidth: 140,
-  backgroundColor: theme.palette.background.paper,
-}));
+  const handleFetchData = async () => {
+    if (!fromTime || !toTime) {
+      alert('Please select both From and To time.');
+      return;
+    }
 
-const ParameterSelect = styled(Select)(({ theme }) => ({
-  minWidth: 200,
-  backgroundColor: theme.palette.background.paper,
-}));
+    setLoading(true);
+    setTimeout(() => {
+      const fakeData = selectedParams.map((param, i) => ({
+        event: selectedEvent,
+        device: selectedDevice,
+        parameter: param.value,
+        value: Math.random().toFixed(3),
+        timestamp: new Date().toISOString(),
+      }));
+      setData(fakeData);
+      setLoading(false);
+    }, 1000);
+  };
 
-export default function EventDeviceParameterSelector() {
-  const [event, setEvent] = useState('All Events');
-  const [device, setDevice] = useState('All Devices');
-  const [parameter, setParameter] = useState('Temperature');
-  const [fromTime, setFromTime] = useState(dayjs());
-  const [toTime, setToTime] = useState(dayjs());
-
-  const handleSubmit = () => {
-    const payload = {
-      event,
-      device,
-      parameter,
-      from: fromTime.toISOString(),
-      to: toTime.toISOString(),
-    };
-    console.log('Submit Payload:', payload);
-    // TODO: Send this payload to backend
-    // fetch('/api/download-data', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload)
-    // });
+  const handleDownload = () => {
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'data.csv';
+    link.click();
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <Box p={3} bgcolor="background.default" color="text.primary">
-        <Typography variant="h5" mb={3}>Event & Device Data Fetcher</Typography>
+    <Box sx={{
+      backgroundColor: '#121212',
+      color: '#fff',
+      p: 3,
+      borderRadius: 2,
+      maxWidth: 800,
+      mx: 'auto',
+    }}>
+      <Typography variant="h5" gutterBottom>
+        Select Event, Device, Time Range, and Parameters
+      </Typography>
 
-        <Grid container spacing={2} alignItems="center">
-          <Grid item>
-            <FormControl>
-              <InputLabel>Event</InputLabel>
-              <SmallSelect
-                value={event}
-                label="Event"
-                onChange={(e) => setEvent(e.target.value)}
-              >
-                {sampleEvents.map((evt, i) => (
-                  <MenuItem key={i} value={evt}>{evt}</MenuItem>
-                ))}
-              </SmallSelect>
-            </FormControl>
-          </Grid>
+      <Box display="flex" flexWrap="wrap" gap={2} mb={2}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel sx={{ color: '#ccc' }}>Event</InputLabel>
+          <Select
+            value={selectedEvent}
+            onChange={(e) => setSelectedEvent(e.target.value)}
+            label="Event"
+            sx={{ color: '#fff', background: '#1f1f1f' }}
+          >
+            {events.map((event) => (
+              <MenuItem key={event} value={event}>{event}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-          <Grid item>
-            <FormControl>
-              <InputLabel>Device</InputLabel>
-              <SmallSelect
-                value={device}
-                label="Device"
-                onChange={(e) => setDevice(e.target.value)}
-              >
-                {sampleDevices.map((dev, i) => (
-                  <MenuItem key={i} value={dev}>{dev}</MenuItem>
-                ))}
-              </SmallSelect>
-            </FormControl>
-          </Grid>
-
-          <Grid item>
-            <FormControl>
-              <InputLabel>Parameter</InputLabel>
-              <ParameterSelect
-                value={parameter}
-                label="Parameter"
-                onChange={(e) => setParameter(e.target.value)}
-              >
-                {sampleParameters.map((param, i) => (
-                  <MenuItem key={i} value={param}>{param}</MenuItem>
-                ))}
-              </ParameterSelect>
-            </FormControl>
-          </Grid>
-
-          <Grid item>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateTimePicker
-                label="From"
-                value={fromTime}
-                onChange={(newVal) => setFromTime(newVal)}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-          </Grid>
-
-          <Grid item>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateTimePicker
-                label="To"
-                value={toTime}
-                onChange={(newVal) => setToTime(newVal)}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-          </Grid>
-
-          <Grid item>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Download Data
-            </Button>
-          </Grid>
-        </Grid>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel sx={{ color: '#ccc' }}>Device</InputLabel>
+          <Select
+            value={selectedDevice}
+            onChange={(e) => setSelectedDevice(e.target.value)}
+            label="Device"
+            sx={{ color: '#fff', background: '#1f1f1f' }}
+          >
+            {devices.map((device) => (
+              <MenuItem key={device} value={device}>{device}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
-    </ThemeProvider>
+
+      <Box display="flex" gap={2} flexWrap="wrap" mb={2}>
+        <TextField
+          label="From Time"
+          type="datetime-local"
+          value={fromTime}
+          onChange={(e) => setFromTime(e.target.value)}
+          InputLabelProps={{ shrink: true, style: { color: '#ccc' } }}
+          InputProps={{ style: { color: '#fff', background: '#1f1f1f' } }}
+        />
+
+        <TextField
+          label="To Time"
+          type="datetime-local"
+          value={toTime}
+          onChange={(e) => setToTime(e.target.value)}
+          InputLabelProps={{ shrink: true, style: { color: '#ccc' } }}
+          InputProps={{ style: { color: '#fff', background: '#1f1f1f' } }}
+        />
+      </Box>
+
+      <ReactSelect
+        isMulti
+        name="parameters"
+        options={parameters}
+        className="basic-multi-select"
+        classNamePrefix="select"
+        onChange={setSelectedParams}
+        placeholder="Select parameters..."
+        styles={{
+          control: (base) => ({ ...base, backgroundColor: '#1f1f1f', color: '#fff' }),
+          menu: (base) => ({ ...base, backgroundColor: '#1f1f1f', color: '#fff' }),
+          input: (base) => ({ ...base, color: '#fff' }),
+          option: (base, { isFocused }) => ({
+            ...base,
+            backgroundColor: isFocused ? '#333' : '#1f1f1f',
+            color: '#fff',
+          }),
+          multiValue: (base) => ({ ...base, backgroundColor: '#333', color: '#fff' }),
+          multiValueLabel: (base) => ({ ...base, color: '#fff' }),
+        }}
+      />
+
+      <Box mt={2} display="flex" gap={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleFetchData}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} /> : 'Fetch Data'}
+        </Button>
+
+        <Button
+          variant="outlined"
+          startIcon={<DownloadIcon />}
+          onClick={handleDownload}
+          disabled={!data.length}
+          sx={{ color: '#fff', borderColor: '#888' }}
+        >
+          Download CSV
+        </Button>
+      </Box>
+
+      {data.length > 0 && (
+        <Box mt={3}>
+          <Typography variant="h6">Fetched {data.length} Records</Typography>
+        </Box>
+      )}
+    </Box>
   );
-}
+};
+
+export default EventDeviceParameterSelector;
