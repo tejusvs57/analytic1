@@ -1,0 +1,68 @@
+Here’s how you can install **MySQL Server** and **DBeaver** on a **Linux system (Ubuntu/Debian-based)**. Let me know if you're using a different distro like Fedora, Arch, etc.
+
+---
+
+### **1. Install MySQL Server**
+
+Open your terminal and run the following commands:
+
+```bash
+sudo apt update
+sudo apt install mysql-server -y
+```
+
+Once installed, secure the installation:
+
+```bash
+sudo mysql_secure_installation
+```
+
+Follow the prompts to set root password and secure your setup.
+
+To check MySQL status:
+
+```bash
+sudo systemctl status mysql
+```
+
+To start MySQL if it’s not running:
+
+```bash
+sudo systemctl start mysql
+```
+
+---
+
+### **2. Install DBeaver (Community Edition)**
+
+Option 1: **Install via `.deb` package**
+
+```bash
+wget https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb
+sudo apt install ./dbeaver-ce_latest_amd64.deb
+```
+
+Option 2: **Install via Snap (if available)**
+
+```bash
+sudo snap install dbeaver-ce
+```
+
+---
+
+### **3. Launch DBeaver**
+
+You can launch it from the application menu or via terminal:
+
+```bash
+dbeaver
+```
+
+From there, you can connect to MySQL using:
+
+* Host: `localhost`
+* Port: `3306`
+* User: `root` (or other)
+* Password: (whatever you set)
+
+---

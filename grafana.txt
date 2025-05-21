@@ -1,0 +1,133 @@
+Perfect! Since you want to **install Grafana directly (not Docker)** and make it **publicly accessible** (e.g., from your React app via an iframe), here’s a complete step-by-step guide:
+
+---
+
+## ✅ Step-by-Step to Install and Make Grafana Publicly Accessible
+
+### ⚙️ 1. **Install Grafana (Direct Installation)**
+
+For **Ubuntu/Debian**:
+
+```bash
+# Add Grafana APT repo
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+
+# Install Grafana
+sudo apt-get update
+sudo apt-get install grafana
+
+# Start and enable the service
+sudo systemctl start grafana-server
+sudo systemctl enable grafana-server
+```
+
+Now open:
+➡️ `http://localhost:3000`
+Login: `admin / admin`
+
+---
+
+### 🌐 2. **Expose Grafana Publicly (Access from Internet or LAN)**
+
+#### 🧱 If You Want LAN Access:
+
+* Get your local IP:
+
+  ```bash
+  ip a  # or ifconfig
+  ```
+* Access Grafana at: `http://<your-local-ip>:3000`
+
+#### 🌐 If You Want Internet Access:
+
+* You need to **open port 3000** in your firewall:
+
+  ```bash
+  sudo ufw allow 3000/tcp
+  ```
+
+* If hosted on cloud (e.g., AWS/GCP), also open port 3000 in your VM's security group.
+
+* Optional but safer: Use **Nginx + domain + HTTPS** (ask if you want setup instructions).
+
+---
+
+### 🔒 3. **Enable Anonymous Access (No Login Required)**
+
+Edit config file:
+
+```bash
+sudo nano /etc/grafana/grafana.ini
+```
+
+Change these lines:
+
+```ini
+[auth.anonymous]
+enabled = true
+org_name = Main Org.
+org_role = Viewer
+```
+
+Uncomment and set:
+
+```ini
+[security]
+allow_embedding = true
+```
+
+> 🔄 Restart Grafana:
+
+```bash
+sudo systemctl restart grafana-server
+```
+
+---
+
+### 🧩 4. **Share Dashboard via IFrame in React App**
+
+In Grafana UI:
+
+* Open your dashboard.
+* Click **Share → Embed**.
+* Copy the `<iframe>` URL (something like `http://<your-ip>:3000/d/abcd123/dashboard-name?orgId=1&kiosk`).
+
+In your React component:
+
+```jsx
+<iframe
+  src="http://<your-ip>:3000/d/abcd123/my-dashboard?orgId=1&kiosk"
+  width="100%"
+  height="600"
+  frameBorder="0"
+/>
+```
+
+---
+
+### 🧪 Test:
+
+1. Open your React app → see the embedded dashboard.
+2. Try opening the iframe URL in an **incognito window** → should load without login.
+
+---
+
+### 🔐 Bonus Tip (Security)
+
+To protect from abuse if you go public:
+
+* Run behind Nginx and restrict by domain/IP.
+* Set up HTTPS with Let’s Encrypt.
+* Use CORS settings if needed for React app.
+
+---
+
+Let me know:
+
+* What OS are you using?
+* Are you hosting locally or on a cloud server?
+* Do you want to expose to LAN only or public internet?
+
+I’ll adjust instructions based on that.
