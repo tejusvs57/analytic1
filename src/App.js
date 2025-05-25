@@ -3,13 +3,14 @@ import AnimatedEventCharts from './bartrial';
 import CoolDataGrid from './grid';
 import NavbarSidebar from './navsidebar';
 import StackedChart from './stackedbar';
-//import TimeRange from './time';
+import TimeRange from './time';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./Time.css"; // Import the CSS for neon styles
 import TimeSeriesChart from './trial';
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import { format } from 'date-fns';
 
@@ -17,6 +18,16 @@ import ScatterGraphBuilder from "./ScatterGraphBuilder";
 import AuthForm from './login';
 import WebSocketNotification from './notification';
 import DeviceDashboard from './DeviceDashboard';
+import Home from './home';
+import ProtectedRoute from './ProtectedRoute';
+import Dashboard from './newtrial';
+import Dashboard1 from './new_main';
+import NavbarSidebarLayout from './charts/navbar';
+import ScatterGraphBuilder1 from './scatter';
+import IpAddressCollector from './ip';
+import EventDeviceParameterSelector from './download2';
+
+
 
 
 //export default MyChart;
@@ -128,17 +139,42 @@ function App() {
 
   return (
     <div className="App" >
+    {/* <NavbarSidebarLayout/>
     <Router>
-      <Routes>
+      <Routes> */}
         {/* Public Login/Register Route */}
-        <Route path="/home" element={<DeviceDashboard />} />
+        {/* <Route path="/" element={<Dashboard/>} />
+        <Route path="/new" element={<Dashboard1/>} />
+        <Route path="/home" element={ <ProtectedRoute> <DeviceDashboard /> </ProtectedRoute>} />
         <Route path="/login" element={<AuthForm />} />
+        <Route path="/app" element={<Home/>} /> */}
+       
 
         {/* Protected Route */}
 
         {/* Add more protected pages similarly */}
-      </Routes>
+      {/* </Routes>
+    </Router> */}
+
+    <Router>
+      {/* <NavbarSidebarLayout /> */}
+      <div className="main-content">
+        {/* <Switch> */}
+        <Routes>
+        <Route path="/" element={<Dashboard/>} />
+        <Route path="/new" element={<Dashboard1/>} />
+        <Route path="/home" element={ <ProtectedRoute> <DeviceDashboard /> </ProtectedRoute>} />
+        <Route path="/login" element={<AuthForm />} />
+        <Route path="/app" element={<Home/>} />
+        <Route path="/scatter" element={<ScatterGraphBuilder1/>} />
+        <Route path='/ip' element={<IpAddressCollector/>} />
+        <Route path='/download' element={<EventDeviceParameterSelector/>} />
+
+        </Routes>
+        {/* </Switch> */}
+      </div>
     </Router>
+
 
     {/* <NavbarSidebar />
     <div style={{marginLeft:'50px'}}>
@@ -146,21 +182,26 @@ function App() {
     <TimeRange style={{marginTop:'30px'}} /> */}
    
    
-    {/* <MyChart />
-    <Line data={data} options={options} />; */}
-    {/* <TimeSeriesChart from={formattedStart} to={formattedEnd}/>
+    {/* <MyChart /> */}
+    {/* <Line data={data} options={options} />;
+    <TimeSeriesChart from={formattedStart} to={formattedEnd}/>
     <AnimatedEventCharts from={formattedStart} to={formattedEnd} />
     <StackedChart />
-
-    <CoolDataGrid from={formattedStart} to={formattedEnd} style={{marginTop:'30px'}} />
-
-    <div>
-    <h1 style={{ textAlign: "center", color: "#66d9ff" }}>📊 Dynamic Scatter Graphs</h1>
-    <ScatterGraphBuilder  />
-    </div>
+     <CoolDataGrid from={formattedStart} to={formattedEnd} style={{marginTop:'30px'}} /> */}
 
    
+
+   
+
+    {/* <div>
+    <h1 style={{ textAlign: "center", color: "#66d9ff" }}>📊 Dynamic Scatter Graphs</h1>
+    <ScatterGraphBuilder  />
     </div> */}
+
+    
+
+   
+    {/* </div> */}
 
    
     
