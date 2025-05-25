@@ -10,12 +10,9 @@ import {
   createTheme,
   ThemeProvider,
 } from '@mui/material';
-import dayjs from 'dayjs';
 
 const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
+  palette: { mode: 'dark' },
 });
 
 const customSelectStyles = {
@@ -24,35 +21,28 @@ const customSelectStyles = {
     backgroundColor: '#333',
     borderColor: '#555',
     color: '#fff',
+    zIndex: 2,
   }),
   menu: (styles) => ({
     ...styles,
     backgroundColor: '#222',
+    zIndex: 5,
   }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
   option: (styles, { isFocused, isSelected }) => ({
     ...styles,
     backgroundColor: isFocused ? '#444' : isSelected ? '#555' : '#222',
     color: 'white',
   }),
-  singleValue: (styles) => ({
-    ...styles,
-    color: 'white',
-  }),
-  multiValue: (styles) => ({
-    ...styles,
-    backgroundColor: '#555',
-  }),
-  multiValueLabel: (styles) => ({
-    ...styles,
-    color: 'white',
-  }),
+  singleValue: (styles) => ({ ...styles, color: 'white' }),
+  multiValue: (styles) => ({ ...styles, backgroundColor: '#555' }),
+  multiValueLabel: (styles) => ({ ...styles, color: 'white' }),
 };
 
 const DataFetcherMUI = () => {
   const [events, setEvents] = useState([]);
   const [devices, setDevices] = useState([]);
   const [parameters, setParameters] = useState([]);
-
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [selectedParameters, setSelectedParameters] = useState([]);
@@ -62,47 +52,29 @@ const DataFetcherMUI = () => {
   const [csvReady, setCsvReady] = useState(false);
 
   useEffect(() => {
-    const fetchOptions = async () => {
-      // const ev = await axios.get('http://localhost:5000/api/data/events');
-      // const dv = await axios.get('http://localhost:5000/api/data/devices');
-      // const pr = await axios.get('http://localhost:5000/api/data/parameters');
+    const sampleEvents = [
+      { label: 'All event', value: 'ALL' },
+      { label: 'Login', value: 'Login' },
+      { label: 'Logout', value: 'Logout' },
+      { label: 'AccessDenied', value: 'AccessDenied' },
+    ];
+    const sampleDevices = [
+      { label: 'All device', value: 'ALL' },
+      { label: 'Sensor-A', value: 'Sensor-A' },
+      { label: 'Sensor-B', value: 'Sensor-B' },
+      { label: 'Camera-X', value: 'Camera-X' },
+    ];
+    const sampleParameters = [
+      { label: 'All param', value: 'ALL' },
+      { label: 'Temperature', value: 'Temperature' },
+      { label: 'Humidity', value: 'Humidity' },
+      { label: 'Pressure', value: 'Pressure' },
+      { label: 'Voltage', value: 'Voltage' },
+    ];
 
-      // const formatOptions = (data, label) => [
-      //   { label: `All ${label}`, value: 'ALL' },
-      //   ...data.map((item) => ({ label: item[`${label.toLowerCase()}_name`], value: item[`${label.toLowerCase()}_name`] })),
-      // ];
-
-      // setEvents(formatOptions(ev.data, 'event'));
-      // setDevices(formatOptions(dv.data, 'device'));
-      // setParameters(formatOptions(pr.data, 'param'));
-
-      const sampleEvents = [
-            { label: 'All event', value: 'ALL' },
-            { label: 'Login', value: 'Login' },
-            { label: 'Logout', value: 'Logout' },
-            { label: 'AccessDenied', value: 'AccessDenied' },
-          ];
-        
-          const sampleDevices = [
-            { label: 'All device', value: 'ALL' },
-            { label: 'Sensor-A', value: 'Sensor-A' },
-            { label: 'Sensor-B', value: 'Sensor-B' },
-            { label: 'Camera-X', value: 'Camera-X' },
-          ];
-        
-          const sampleParameters = [
-            { label: 'All param', value: 'ALL' },
-            { label: 'Temperature', value: 'Temperature' },
-            { label: 'Humidity', value: 'Humidity' },
-            { label: 'Pressure', value: 'Pressure' },
-            { label: 'Voltage', value: 'Voltage' },
-          ];
-        
-          setEvents(sampleEvents);
-          setDevices(sampleDevices);
-          setParameters(sampleParameters);
-    };
-    fetchOptions();
+    setEvents(sampleEvents);
+    setDevices(sampleDevices);
+    setParameters(sampleParameters);
   }, []);
 
   const handleSubmit = async () => {
@@ -114,7 +86,7 @@ const DataFetcherMUI = () => {
     const response = await axios.post('http://localhost:5000/api/data/fetch', {
       event: selectedEvent.value,
       device: selectedDevice.value,
-      parameters: selectedParameters.map(p => p.value),
+      parameters: selectedParameters.map((p) => p.value),
       fromTime,
       toTime,
     });
@@ -128,27 +100,29 @@ const DataFetcherMUI = () => {
       <Box sx={{ p: 4, bgcolor: '#121212', color: 'white' }}>
         <Typography variant="h4" gutterBottom>Data Fetcher Tool</Typography>
 
-        <Box sx={{ mb: 2 }}>
+        <Box mb={2}>
           <Typography>Event</Typography>
           <Select
             options={events}
             onChange={setSelectedEvent}
             styles={customSelectStyles}
             placeholder="Select event"
+            menuPortalTarget={document.body}
           />
         </Box>
 
-        <Box sx={{ mb: 2 }}>
+        <Box mb={2}>
           <Typography>Device</Typography>
           <Select
             options={devices}
             onChange={setSelectedDevice}
             styles={customSelectStyles}
             placeholder="Select device"
+            menuPortalTarget={document.body}
           />
         </Box>
 
-        <Box sx={{ mb: 2 }}>
+        <Box mb={2} sx={{ width: '100%' }}>
           <Typography>Parameters</Typography>
           <Select
             isMulti
@@ -156,17 +130,18 @@ const DataFetcherMUI = () => {
             onChange={setSelectedParameters}
             styles={customSelectStyles}
             placeholder="Select parameters"
+            menuPortalTarget={document.body}
           />
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
           <TextField
             label="From Time"
             type="datetime-local"
             InputLabelProps={{ shrink: true }}
             value={fromTime}
             onChange={(e) => setFromTime(e.target.value)}
-            sx={{ input: { color: 'white' } }}
+            sx={{ input: { color: 'white' }, flex: 1, minWidth: '200px' }}
           />
           <TextField
             label="To Time"
@@ -174,7 +149,7 @@ const DataFetcherMUI = () => {
             InputLabelProps={{ shrink: true }}
             value={toTime}
             onChange={(e) => setToTime(e.target.value)}
-            sx={{ input: { color: 'white' } }}
+            sx={{ input: { color: 'white' }, flex: 1, minWidth: '200px' }}
           />
         </Box>
 

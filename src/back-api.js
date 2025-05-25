@@ -2,94 +2,99 @@ const express = require('express');
 const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
-const fastcsv = require('fast-csv');
-const archiver = require('archiver');
+const { exec } = require('child_process');
 
 const app = express();
 app.use(express.json());
 
-const pool = mysql.createPool({
+// Setup MySQL connection
+const connection = mysql.createConnection({
   host: 'localhost',
   user: 'youruser',
   password: 'yourpassword',
   database: 'yourdb',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+  multipleStatements: true
 });
 
-const outputDir = path.join(__dirname, 'output');
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+// Folder where MySQL will write the CSV
+const OUTPUT_DIR = '/tmp'; // This should be writable by MySQL
+const PORT = 3000;
 
-app.post('/export', (req, res) => {
+app.post('/export', async (req, res) => {
   const { device, event, parameters, fromTime, toTime } = req.body;
 
   if (!device || !event || !parameters || !fromTime || !toTime) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const fileName = `export_${Date.now()}.csv`;
-  const filePath = path.join(outputDir, fileName);
-
-  const csvStream = fastcsv.format({ headers: true });
-  const writeStream = fs.createWriteStream(filePath);
-  csvStream.pipe(writeStream);
+  const timestamp = Date.now();
+  const csvFileName = `export_${timestamp}.csv`;
+  const csvPath = path.join(OUTPUT_DIR, csvFileName);
+  const zipFileName = csvFileName.replace('.csv', '.zip');
+  const zipPath = path.join(OUTPUT_DIR, zipFileName);
 
   const columns = parameters.map(col => `\`${col}\``).join(', ');
-  const sql = `
+  const exportQuery = `
     SELECT ${columns}
+    INTO OUTFILE ?
+    FIELDS TERMINATED BY ','
+    ENCLOSED BY '"'
+    LINES TERMINATED BY '\n'
     FROM your_table
     WHERE device = ?
       AND event = ?
-      AND timestamp BETWEEN ? AND ?
+      AND timestamp BETWEEN ? AND ?;
   `;
 
-  const queryStream = pool.query(sql, [device, event, fromTime, toTime]).stream();
+  // MySQL INTO OUTFILE must use absolute path with forward slashes
+  const outfilePathForMySQL = csvPath.replace(/\\/g, '/');
 
-  queryStream.on('data', row => {
-    csvStream.write(row);
-  });
+  connection.query(exportQuery, [
+    outfilePathForMySQL,
+    device,
+    event,
+    fromTime,
+    toTime
+  ], (err) => {
+    if (err) {
+      console.error('MySQL export error:', err);
+      return res.status(500).json({ error: 'CSV export failed' });
+    }
 
-  queryStream.on('end', () => {
-    csvStream.end();
+    // Zip the file
+    exec(`zip -j ${zipPath} ${csvPath}`, (zipErr) => {
+      if (zipErr) {
+        console.error('Zipping failed:', zipErr);
+        return res.status(500).json({ error: 'Zip creation failed' });
+      }
 
-    writeStream.on('finish', () => {
-      fs.stat(filePath, (err, stats) => {
-        if (err) return res.status(500).json({ error: 'File error' });
+      // Send the zip file as download
+      res.download(zipPath, zipFileName, (downloadErr) => {
+        if (downloadErr) {
+          console.error('Download failed:', downloadErr);
+        }
 
-        if (stats.size > 50 * 1024 * 1024) {
-          // Create ZIP if CSV is large
-          const zipName = fileName.replace('.csv', '.zip');
-          const zipPath = path.join(outputDir, zipName);
-          const output = fs.createWriteStream(zipPath);
-          const archive = archiver('zip');
-
-          output.on('close', () => {
-            res.download(zipPath, zipName, () => {
-              fs.unlinkSync(filePath);
-              fs.unlinkSync(zipPath);
-            });
-          });
-
-          archive.pipe(output);
-          archive.file(filePath, { name: fileName });
-          archive.finalize();
-        } else {
-          res.download(filePath, fileName, () => {
-            fs.unlinkSync(filePath);
-          });
+        // Cleanup files
+        try {
+          fs.unlinkSync(csvPath);
+          fs.unlinkSync(zipPath);
+        } catch (cleanupErr) {
+          console.warn('Cleanup warning:', cleanupErr);
         }
       });
     });
   });
-
-  queryStream.on('error', err => {
-    console.error(err);
-    res.status(500).json({ error: 'Database stream error' });
-  });
 });
 
-const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
+//SHOW GRANTS FOR 'youruser'@'localhost';
+// GRANT FILE ON *.* TO 'youruser'@'localhost';
+// FLUSH PRIVILEGES;
+//[mysqld]
+// max_allowed_packet=1G
+// secure_file_priv=/tmp
+
